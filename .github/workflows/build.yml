@@ -1,0 +1,29 @@
+name: Build APK
+on:
+  workflow_dispatch:
+    inputs:
+      zip:
+        description: "Zip file name in this repo"
+        required: true
+        default: "Ultron-offline.zip"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip project
+        run: unzip -q "${{ github.event.inputs.zip }}"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+      - name: Build debug APK
+        run: gradle assembleDebug
+        working-directory: Jarvis
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-apk
+          path: Jarvis/app/build/outputs/apk/debug/*.apk
